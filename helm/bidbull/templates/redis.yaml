@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bidbull-redis
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: bidbull-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bidbull-redis
+  template:
+    metadata:
+      labels:
+        app: bidbull-redis
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.redis.port }}
+              name: redis
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bidbull-redis
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: bidbull-redis
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.redis.port }}
+      targetPort: redis
+      protocol: TCP
+      name: redis
+  selector:
+    app: bidbull-redis

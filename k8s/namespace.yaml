@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bidbull
+  labels:
+    app.kubernetes.io/name: bidbull
+    app.kubernetes.io/part-of: bidbull-platform

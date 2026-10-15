@@ -1,0 +1,70 @@
+global:
+  environment: production
+
+namespace: bidbull
+
+backend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/bidbull/bidbull-backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  port: 8000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    DATABASE_URL: "postgresql+psycopg://bidbull:bidbull@bidbull-postgres:5432/bidbull"
+    REDIS_URL: "redis://bidbull-redis:6379/0"
+    JWT_SECRET: "secure_bidbull_secret_key_production_ready_value"
+    CORS_ORIGINS: "http://bidbull.local,http://localhost:3000"
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/bidbull/bidbull-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  port: 3000
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  env:
+    NEXT_PUBLIC_API_URL: "http://bidbull.local"
+    NEXT_PUBLIC_WS_HOST: "bidbull.local"
+
+postgres:
+  image:
+    repository: postgres
+    tag: "16-alpine"
+  port: 5432
+  storageSize: 5Gi
+  user: bidbull
+  password: bidbull
+  database: bidbull
+
+redis:
+  image:
+    repository: redis
+    tag: "7.2-alpine"
+  port: 6379
+  storageSize: 2Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  host: bidbull.local
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 70

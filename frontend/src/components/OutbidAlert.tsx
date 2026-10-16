@@ -14,16 +14,16 @@ export default function OutbidAlert({ alert, onDismiss }: OutbidAlertProps) {
   }
 
   return (
-    <div className="mb-4 flex items-center justify-between rounded border border-rose-800 bg-rose-950/60 p-3 text-rose-300">
+    <div className="mb-4 flex items-center justify-between rounded border border-brand-danger bg-brand-dangerBg p-3 text-brand-danger">
       <div className="flex items-center space-x-2">
-        <span className="font-bold text-rose-400">OUTBID:</span>
+        <span className="font-bold">OUTBID:</span>
         <span className="text-sm">
           Another bidder took the lead at{" "}
-          <span className="font-mono font-semibold">
+          <span className="font-mono font-bold">
             {formatCentsToDollars(alert.outbid_price_cents)}
           </span>
           . Minimum to counter:{" "}
-          <span className="font-mono font-semibold">
+          <span className="font-mono font-bold">
             {formatCentsToDollars(alert.next_minimum_cents)}
           </span>
           .
@@ -32,7 +32,7 @@ export default function OutbidAlert({ alert, onDismiss }: OutbidAlertProps) {
       <button
         type="button"
         onClick={onDismiss}
-        className="rounded px-2 py-0.5 text-xs text-rose-400 hover:bg-rose-900"
+        className="rounded border border-brand-danger/50 px-2 py-0.5 text-xs font-bold hover:bg-brand-danger hover:text-white transition"
       >
         DISMISS
       </button>

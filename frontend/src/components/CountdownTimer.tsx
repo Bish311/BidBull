@@ -46,10 +46,10 @@ export default function CountdownTimer({
     <div
       className={`font-mono text-sm tracking-wider ${
         isClosed
-          ? "text-gray-500"
+          ? "text-brand-muted"
           : isUrgent
-          ? "text-rose-500 animate-pulse font-bold"
-          : "text-gray-200"
+          ? "text-brand-danger animate-pulse font-bold"
+          : "text-brand-text"
       } ${className}`}
     >
       {isClosed

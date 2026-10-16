@@ -129,56 +129,60 @@ export default function AuctionRoom({ itemId, activePersona, session }: AuctionR
 
   if (!item) {
     return (
-      <div className="flex h-64 items-center justify-center text-sm text-gray-500 font-mono">
+      <div className="flex h-64 items-center justify-center text-sm text-brand-muted font-mono">
         CONNECTING TO AUCTION ROOM...
       </div>
     );
   }
 
-  const isClosed = item.status === "CLOSED_SOLD" || item.status === "CLOSED_UNMET";
+  const isExpired = new Date() >= new Date(item.expires_at);
+  const isClosed =
+    item.status === "CLOSED_SOLD" ||
+    item.status === "CLOSED_UNMET" ||
+    isExpired;
 
   return (
     <div className="space-y-6">
       <OutbidAlert alert={outbidAlert} onDismiss={() => setOutbidAlert(null)} />
 
       {errorMessage && (
-        <div className="rounded border border-red-800 bg-red-950/60 p-3 text-xs text-red-300">
+        <div className="rounded border border-brand-danger bg-brand-dangerBg p-3 text-xs text-brand-danger font-bold">
           {errorMessage}
         </div>
       )}
 
-      <div className="flex items-center justify-between border-b border-[#252836] pb-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-brand-border pb-4">
         <div>
           <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-white">{item.title}</h1>
+            <h1 className="text-2xl font-bold text-brand-text">{item.title}</h1>
             <span
               className={`rounded px-2.5 py-0.5 text-xs font-semibold ${
                 isClosed
-                  ? "bg-gray-800 text-gray-400"
+                  ? "bg-brand-subpanel text-brand-muted border border-brand-border"
                   : item.status === "EXTENDED"
-                  ? "bg-amber-950 text-amber-400 border border-amber-800"
-                  : "bg-emerald-950 text-emerald-400 border border-emerald-800"
+                  ? "border border-amber-600/40 bg-amber-500/10 text-amber-500"
+                  : "border border-emerald-600/40 bg-emerald-500/10 text-emerald-500"
               }`}
             >
-              {item.status}
+              {isClosed ? "CLOSED" : item.status}
             </span>
           </div>
-          <p className="mt-1 text-xs text-gray-400">{item.description}</p>
+          <p className="mt-1 text-xs text-brand-muted">{item.description}</p>
         </div>
 
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <span
               className={`inline-block h-2.5 w-2.5 rounded-full ${
-                isConnected ? "bg-emerald-400" : "bg-rose-500"
+                isConnected ? "bg-emerald-500" : "bg-brand-danger"
               }`}
             />
-            <span className="text-xs font-mono text-gray-400">
+            <span className="text-xs font-mono text-brand-muted">
               {isConnected ? "STREAM LIVE" : "DISCONNECTED"}
             </span>
           </div>
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-wider text-gray-500">
+            <div className="text-[10px] uppercase tracking-wider text-brand-muted">
               TIME REMAINING
             </div>
             <CountdownTimer expiresAtUtc={item.expires_at} className="text-xl" />
@@ -188,22 +192,22 @@ export default function AuctionRoom({ itemId, activePersona, session }: AuctionR
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
-          <div className="grid grid-cols-3 gap-4 rounded border border-[#252836] bg-[#14161f] p-5">
+          <div className="grid grid-cols-3 gap-4 rounded border border-brand-border bg-brand-card p-5">
             <div>
-              <div className="text-xs uppercase text-gray-500">CURRENT PRICE</div>
-              <div className="mt-1 font-mono text-3xl font-extrabold text-white">
+              <div className="text-xs uppercase text-brand-muted">CURRENT PRICE</div>
+              <div className="mt-1 font-mono text-3xl font-extrabold text-brand-text">
                 {formatCentsToDollars(item.current_price_cents)}
               </div>
             </div>
             <div>
-              <div className="text-xs uppercase text-gray-500">NEXT MINIMUM</div>
-              <div className="mt-1 font-mono text-3xl font-extrabold text-blue-400">
+              <div className="text-xs uppercase text-brand-muted">NEXT MINIMUM</div>
+              <div className="mt-1 font-mono text-3xl font-extrabold text-brand-accent">
                 {formatCentsToDollars(item.next_minimum_cents)}
               </div>
             </div>
             <div>
-              <div className="text-xs uppercase text-gray-500">HIGH BIDDER</div>
-              <div className="mt-1 font-mono text-xl font-bold text-gray-200">
+              <div className="text-xs uppercase text-brand-muted">HIGH BIDDER</div>
+              <div className="mt-1 font-mono text-xl font-bold text-brand-text">
                 {item.high_bidder_masked || "No bids"}
               </div>
             </div>
@@ -228,7 +232,6 @@ export default function AuctionRoom({ itemId, activePersona, session }: AuctionR
               <BidConsole
                 currentPriceCents={item.current_price_cents}
                 nextMinimumCents={item.next_minimum_cents}
-                quickBidOptions={item.quick_bid_options}
                 isSubmitting={isSubmitting}
                 onSubmitBid={handleSubmitBid}
                 disabled={isClosed}

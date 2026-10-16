@@ -82,7 +82,8 @@ export async function joinUser(username: string): Promise<{
     body: JSON.stringify({ username: username.trim() }),
   });
   if (!response.ok) {
-    throw new Error("Unable to join with specified handle");
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Unable to join with specified handle");
   }
   return response.json();
 }

@@ -128,7 +128,7 @@ async def update_item(
     item = await db.get(Item, item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    if item.seller_id != current_user.id:
+    if str(item.seller_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Only item creator can modify this listing")
     if payload.title is not None:
         item.title = payload.title
@@ -166,7 +166,7 @@ async def delete_item(
     item = await db.get(Item, item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    if item.seller_id != current_user.id:
+    if str(item.seller_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Only item creator can delete this listing")
     await db.delete(item)
     await db.commit()

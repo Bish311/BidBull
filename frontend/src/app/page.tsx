@@ -157,8 +157,8 @@ export default function CatalogPage() {
     try {
       await deleteItemListing(itemId, session.token);
       refreshCatalog(session.roomKey);
-    } catch {
-      // Ignored if unable to delete
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to delete listing");
     }
   };
 
@@ -448,19 +448,12 @@ export default function CatalogPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (
-              <div key={item.id} className="relative group">
-                <AuctionCard item={item} />
-                {session.role === "ADMIN" && item.bid_count === 0 && (
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="absolute top-3 right-3 rounded border border-red-800 bg-red-950/80 px-2 py-1 text-[10px] font-mono text-red-300 hover:bg-red-800 hover:text-white transition"
-                    title="Delete listing (Admin only)"
-                  >
-                    DELETE
-                  </button>
-                )}
-              </div>
+              <AuctionCard
+                key={item.id}
+                item={item}
+                canDelete={session.role === "ADMIN" && item.bid_count === 0}
+                onDelete={handleDeleteItem}
+              />
             ))}
           </div>
         )}

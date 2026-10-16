@@ -152,6 +152,7 @@ export async function deleteItemListing(
     },
   });
   if (!response.ok) {
-    throw new Error("Failed to delete listing");
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(formatErrorDetail(errorData.detail, "Failed to delete listing"));
   }
 }

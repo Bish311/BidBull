@@ -69,3 +69,10 @@ kubectl set selector service bidbull-broken-service app=bidbull-backend -n bidbu
 kubectl get endpoints bidbull-broken-service -n bidbull
 kubectl delete -f troubleshooting/broken-service.yaml
 ```
+
+---
+
+## Student Credentials
+
+Student Credentials: BISHWAYAN CHATTERJEE 24BCS10200
+

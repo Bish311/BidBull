@@ -23,3 +23,10 @@ flowchart LR
 * **Declarative Infrastructure as Code:** AWS VPC and EKS infrastructure blueprints are managed through modular Terraform definitions.
 * **Kubernetes Orchestration:** Helm packages deployments, ClusterIP services, Ingress routing, and Horizontal Pod Autoscalers targeting 70% CPU utilization.
 * **Integrated Observability:** Prometheus scrapes operational metrics directly from FastAPI endpoints for real-time visualization in Grafana.
+
+---
+
+## Student Credentials
+
+Student Credentials: BISHWAYAN CHATTERJEE 24BCS10200
+

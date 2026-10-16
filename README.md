@@ -113,7 +113,7 @@ Semantic commit progression across all 10 DevOps capstone modules:
 | **M7** | Terraform: AWS Infrastructure as Code | 15 | `terraform/` (AWS VPC, 2 public subnets, 2 private subnets, NAT Gateway, EKS Cluster + Managed Node Group) |
 | **M8** | Kubernetes + Helm | 15 | `k8s/namespace.yaml`, `helm/bidbull/` (Dual replicas, ClusterIP services, Ingress, HPA, PVCs) |
 | **M9** | Observability: Prometheus + Grafana | 10 | Backend `/metrics` endpoint, `monitoring/prometheus-values.yaml`, `monitoring/grafana-values.yaml` & dashboard |
-| **M10** | Presentation & Documentation | 5 | Comprehensive `README.md`, `troubleshooting/` lab guides, and live demo verification steps |
+| **M10** | Presentation & Documentation | 5 | Comprehensive `README.md`, architecture blueprints, and troubleshooting guides |
 | **Total** | | **100** | **Full Compliance** |
 
 ---
@@ -321,11 +321,6 @@ Refer to [troubleshooting/README.md](file:///c:/Users/Bishwayan%20Chatterjee/Des
 
 ---
 
-## 9. Live Demonstration Script
+## Student Credentials
 
-For evaluations or presentation walkthroughs:
-1. **Application Walkthrough:** Open `http://localhost:3000`, enter handle, create a room as Admin, list an item, open a second browser window as Bidder, and place a bid.
-2. **API Verification:** Demonstrate `curl http://localhost:8000/health` and `curl http://localhost:8000/metrics`.
-3. **CI/CD Quality Gate:** Make a code change, commit with semantic message, push to GitHub, and watch the GitHub Actions pipeline execute tests, Trivy audit, and image compilation.
-4. **Kubernetes Inspection:** Run `kubectl get pods -n bidbull` showing all pods in `Running` state.
-5. **Autoscaling Demonstration:** Run `python scripts/load_test.py --url http://localhost:8000 --concurrency 40 --duration 45` and observe CPU metrics spike in Prometheus and HPA pod scaling via `kubectl get hpa -n bidbull -w`.
+Student Credentials: BISHWAYAN CHATTERJEE 24BCS10200

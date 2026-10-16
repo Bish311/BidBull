@@ -56,3 +56,10 @@ If a vulnerability such as `CVE-2023-45853` (a memory corruption issue in minizi
 | Attack Surface Reduction | Multi-stage Docker builds | Eliminates compilers, git, npm, and build tools from final runtime images |
 | Secret Sanitization | Git-ignored `.env` and `.tfvars` | Zero secrets or AWS credentials committed to source control |
 | Automated Quality Gate | Automated `exit-code: "1"` gate in CI | Halts image promotion to GHCR if high/critical vulnerabilities arise |
+
+---
+
+## Student Credentials
+
+Student Credentials: BISHWAYAN CHATTERJEE 24BCS10200
+

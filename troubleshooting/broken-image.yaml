@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bidbull-broken-image
+  namespace: bidbull
+  labels:
+    app: bidbull-broken-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bidbull-broken-image
+  template:
+    metadata:
+      labels:
+        app: bidbull-broken-image
+    spec:
+      containers:
+        - name: backend
+          # Deliberately invalid image tag to demonstrate ImagePullBackOff diagnosis
+          image: ghcr.io/bidbull/bidbull-backend:non-existent-v999.0
+          ports:
+            - containerPort: 8000
+              name: http
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi

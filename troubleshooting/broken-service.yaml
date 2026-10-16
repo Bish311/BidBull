@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bidbull-broken-service
+  namespace: bidbull
+  labels:
+    app: bidbull-broken-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  # Deliberately mismatched label selector to demonstrate Endpoints: <none> diagnosis
+  selector:
+    app: bidbull-backend-typo-label

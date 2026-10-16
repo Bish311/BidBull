@@ -6,9 +6,8 @@ import { formatCentsToDollars, parseDollarsToCents } from "../lib/format-currenc
 interface BidConsoleProps {
   currentPriceCents: number;
   nextMinimumCents: number;
-  quickBidOptions?: number[];
   isSubmitting: boolean;
-  onSubmitBid: (amountCents: number) => void;
+  onSubmitBid: (amountCents: number, isDirect: boolean) => void;
   disabled?: boolean;
   isAdmin?: boolean;
   isHighBidder?: boolean;
@@ -16,7 +15,6 @@ interface BidConsoleProps {
 
 export default function BidConsole({
   nextMinimumCents,
-  quickBidOptions: backendQuickOptions,
   isSubmitting,
   onSubmitBid,
   disabled = false,
@@ -25,20 +23,18 @@ export default function BidConsole({
 }: BidConsoleProps) {
   const [customBidDollars, setCustomBidDollars] = useState<string>("");
 
-  const defaultStep = nextMinimumCents < 10000 ? 500 : 1000;
-  const quickBidOptions = backendQuickOptions && backendQuickOptions.length === 3
-    ? backendQuickOptions
-    : [
-        nextMinimumCents,
-        nextMinimumCents + defaultStep,
-        nextMinimumCents + 2 * defaultStep,
-      ];
+  const step = nextMinimumCents < 10000 ? 500 : 1000;
+  const quickBidOptions = [
+    nextMinimumCents,
+    nextMinimumCents + step,
+    nextMinimumCents + 2 * step,
+  ];
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cents = parseDollarsToCents(customBidDollars);
     if (cents >= nextMinimumCents) {
-      onSubmitBid(cents);
+      onSubmitBid(cents, false);
       setCustomBidDollars("");
     }
   };
@@ -74,7 +70,7 @@ export default function BidConsole({
               key={amount}
               type="button"
               disabled={disabled || isSubmitting}
-              onClick={() => onSubmitBid(amount)}
+              onClick={() => onSubmitBid(amount, true)}
               className="rounded border border-[#2b3042] bg-[#1c202d] py-2.5 text-xs font-mono font-bold text-gray-100 transition hover:border-blue-500 hover:bg-[#2563eb] disabled:opacity-40"
             >
               BID {formatCentsToDollars(amount)}

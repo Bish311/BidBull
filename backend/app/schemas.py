@@ -92,6 +92,7 @@ class ItemDetailResponse(ItemResponse):
 
 class BidCreate(BaseModel):
     max_bid_cents: int = Field(gt=0)
+    is_direct: bool = False
 
 
 class BidSubmissionResult(BaseModel):

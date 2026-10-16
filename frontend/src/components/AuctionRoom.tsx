@@ -92,11 +92,30 @@ export default function AuctionRoom({ itemId, activePersona, session }: AuctionR
     onOutbidAlert: handleOutbidAlert,
   });
 
-  const handleSubmitBid = async (amountCents: number) => {
+  const handleSubmitBid = async (amountCents: number, isDirect: boolean = false) => {
     setIsSubmitting(true);
     setErrorMessage(null);
     try {
-      await placeBid(itemId, amountCents, activePersona.token);
+      const res = await placeBid(itemId, amountCents, activePersona.token, isDirect);
+      setItem((prev) => {
+        if (!prev) return prev;
+        const currentName = session?.username || activePersona.username;
+        const masked = currentName.length > 2
+          ? currentName[0] + "***" + currentName[currentName.length - 1]
+          : currentName + "***";
+        return {
+          ...prev,
+          current_price_cents: res.current_price_cents,
+          next_minimum_cents: res.next_minimum_cents,
+          high_bidder_id: session?.userId || activePersona.userId,
+          high_bidder_masked: masked,
+          bid_count: prev.bid_count + 1,
+        };
+      });
+      const history = await fetchBidHistory(itemId).catch(() => []);
+      if (history.length > 0) {
+        setBids(history);
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMessage(err.message);

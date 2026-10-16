@@ -60,7 +60,7 @@ async def submit_bid(
             new_bidder_id=current_user.id, new_max_cents=payload.max_bid_cents,
             current_high_bidder_id=item.high_bidder_id, current_price_cents=item.current_price_cents,
             existing_proxy_max_cents=existing_max, starting_price_cents=item.starting_price_cents,
-            has_prior_bids=has_bids,
+            has_prior_bids=has_bids, is_direct=payload.is_direct,
         )
         item.current_price_cents = step.new_price_cents
         item.high_bidder_id = step.winning_bidder_id

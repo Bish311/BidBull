@@ -74,7 +74,8 @@ function formatErrorDetail(detail: unknown, fallback: string): string {
 export async function placeBid(
   itemId: string,
   maxBidCents: number,
-  token: string
+  token: string,
+  isDirect: boolean = false
 ): Promise<BidSubmissionResponse> {
   const response = await fetch(`${API_BASE}/api/items/${itemId}/bids`, {
     method: "POST",
@@ -82,7 +83,10 @@ export async function placeBid(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ max_bid_cents: maxBidCents }),
+    body: JSON.stringify({
+      max_bid_cents: maxBidCents,
+      is_direct: isDirect,
+    }),
   });
 
   const data = await response.json();

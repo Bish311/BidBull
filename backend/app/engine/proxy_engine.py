@@ -20,8 +20,36 @@ def resolve_proxy_step(
     current_price_cents: int,
     existing_proxy_max_cents: int,
     starting_price_cents: int,
-    has_prior_bids: bool
+    has_prior_bids: bool,
+    is_direct: bool = False
 ) -> ProxyStepResult:
+    if is_direct:
+        if current_high_bidder_id is None or current_high_bidder_id == new_bidder_id:
+            return ProxyStepResult(
+                winning_bidder_id=new_bidder_id,
+                new_price_cents=new_max_cents,
+                winning_proxy_max_cents=new_max_cents,
+                displaced_bidder_id=None,
+                outbid_bidder_id=None,
+            )
+        if new_max_cents > existing_proxy_max_cents:
+            return ProxyStepResult(
+                winning_bidder_id=new_bidder_id,
+                new_price_cents=new_max_cents,
+                winning_proxy_max_cents=new_max_cents,
+                displaced_bidder_id=current_high_bidder_id,
+                outbid_bidder_id=current_high_bidder_id,
+            )
+        increment = get_tier_increment(new_max_cents)
+        final_price = min(existing_proxy_max_cents, new_max_cents + increment)
+        return ProxyStepResult(
+            winning_bidder_id=current_high_bidder_id,
+            new_price_cents=final_price,
+            winning_proxy_max_cents=existing_proxy_max_cents,
+            displaced_bidder_id=None,
+            outbid_bidder_id=new_bidder_id,
+        )
+
     if not has_prior_bids or current_high_bidder_id is None:
         return ProxyStepResult(
             winning_bidder_id=new_bidder_id,

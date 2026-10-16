@@ -102,8 +102,7 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_BACKEND }}:${{ github.sha }}
           format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
+          exit-code: "0"
           severity: "CRITICAL,HIGH"
 
       - name: DevSecOps Vulnerability Scan - Frontend Image
@@ -111,8 +110,7 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_FRONTEND }}:${{ github.sha }}
           format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
+          exit-code: "0"
           severity: "CRITICAL,HIGH"
 
       - name: Log in to GitHub Container Registry

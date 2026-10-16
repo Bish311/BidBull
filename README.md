@@ -1,87 +1,299 @@
 # BidBull — Real-Time Auction Platform
 
-BidBull is a high-concurrency, real-time digital auction platform built on Python FastAPI and Next.js, backed by PostgreSQL 16 and Redis 7.2. The system provides automated proxy bidding, tiered dynamic increments, secret reserve prices, and anti-sniping soft-close extensions. Designed to fulfill the complete DevOps Engineering Capstone (Modules M1–M10, 100 points), the repository encompasses containerization with multi-stage non-root Docker images, automated GitHub Actions CI/CD with Trivy DevSecOps scanning, declarative Terraform infrastructure for AWS VPC and EKS, Kubernetes Helm packaging with HPA and Ingress, and real-time Prometheus/Grafana monitoring.
+BidBull is a high-concurrency, real-time digital auction platform built on Python FastAPI and Next.js, backed by PostgreSQL 16 and Redis 7.2. The system provides automated proxy bidding, tiered dynamic increments, secret reserve prices, and anti-sniping soft-close extensions.
+
+Designed to fulfill the complete DevOps Engineering Capstone (Modules M1–M10, 100 points), the repository encompasses containerization with multi-stage non-root Docker images, automated GitHub Actions CI/CD with Trivy DevSecOps scanning, declarative Terraform infrastructure for AWS VPC and EKS, Kubernetes Helm packaging with HPA and Ingress, and real-time Prometheus/Grafana monitoring.
 
 ```mermaid
 flowchart TD
-    User["Web Browser Client"] --> Ingress["Kubernetes Ingress / Reverse Proxy"]
-    Ingress -->|"HTTP / Static"| Frontend["Next.js Frontend (:3000)"]
-    Ingress -->|"REST APIs / WebSockets"| Backend["FastAPI Backend (:8000)"]
+    User["Web Browser Client"] --> Ingress["Kubernetes Ingress (Nginx)"]
+    Ingress -->|"HTTP / Static (/)"| Frontend["Next.js Frontend (:3000)"]
+    Ingress -->|"REST APIs (/api)"| Backend["FastAPI Backend (:8000)"]
+    Ingress -->|"WebSockets (/ws)"| Backend
     Backend -->|"Pub/Sub & Mutex Locks"| Redis[("Redis 7.2 (:6379)")]
     Backend -->|"Row-Level Locks & Ledger"| Database[("PostgreSQL 16 (:5432)")]
     Alembic["Alembic Migrations"] -->|"Schema DDL"| Database
     Prometheus["Prometheus (:9090)"] -->|"Scrapes /metrics"| Backend
-    Grafana["Grafana (:3001)"] -->|"Visualizes"| Prometheus
+    Grafana["Grafana (:3000)"] -->|"Visualizes Metrics"| Prometheus
 ```
-
-* **Core Application (M1):** FastAPI REST APIs and WebSocket stream with Next.js dashboard, backed by PostgreSQL and Alembic migrations.
-* **Hermetic Testing Gate (M2):** Automated Pytest test suite covering auction lifecycles, proxy escalation, soft-close triggers, and concurrency safety.
-* **Repository Standards (M3):** Clean Git history, imperative present-tense commit messages, and strict ignore rules.
-* **Containerization (M4):** Multi-stage, non-root Dockerfiles for frontend and backend with complete multi-service Docker Compose orchestration.
-* **CI/CD Automation (M5):** GitHub Actions pipeline executing automated tests, image compilation, and GHCR registry pushes tagged with Git commit SHA.
-* **DevSecOps Scanning (M6):** Automated Trivy container vulnerability scanner failing on HIGH and CRITICAL CVE discoveries.
-* **Infrastructure as Code (M7):** Modular Terraform blueprints provisioning AWS VPC, public/private subnets, and EKS managed cluster in `ap-south-1`.
-* **Kubernetes Packaging (M8):** Isolated `bidbull` namespace, reusable Helm chart, dual-replica deployments, ClusterIP services, Ingress, and HPA.
-* **Observability (M9):** Native Prometheus instrumentation exposing `/metrics`, scrape configuration, and Grafana dashboard visualization.
-* **Documentation (M10):** Architectural specification, operational runbook, and complete verification guides.
 
 ---
 
-## Local Development & Quickstart Runbook
+## Capstone Grading Rubric & Module Mapping (100 Points)
 
-### 1. Launch Multi-Service Stack via Docker Compose
-Ensure Docker Desktop is running, then execute:
+| Module | Topic | Points | Implementation & Location |
+|---|---|---|---|
+| **M1** | Application: Frontend + Backend + Database | 10 | FastAPI backend, Next.js UI, PostgreSQL + Alembic in `backend/app/`, `backend/alembic/`, `frontend/` |
+| **M2** | Testing: Pytest + Code Quality | 10 | 15 test cases in `backend/tests/`, SQLite + MockRedis in `backend/tests/conftest.py`, `backend/pytest.ini` |
+| **M3** | Git & GitHub Standards | 5 | Semantic commits (`feat:`, `fix:`, `style:`, `ci:`), clean history, `.gitignore` excluding `.env`, `.venv`, `personal/` |
+| **M4** | Docker: Dockerfile + Compose | 10 | Multi-stage Dockerfiles, non-root users (`bidbull`, `nextjs`), `docker-compose.yml` orchestrating all 4 services |
+| **M5** | CI/CD: GitHub Actions Pipeline | 15 | `.github/workflows/ci-cd.yaml` (Test -> Build & Scan -> GHCR Push with SHA tags -> Helm Dry-Run) |
+| **M6** | DevSecOps: Trivy Security Scan | 5 | Automated Trivy scanner failing on HIGH/CRITICAL CVEs (`exit-code: 1`), documented in `docs/DEVSECOPS.md` |
+| **M7** | Terraform: AWS Infrastructure as Code | 15 | `terraform/` (AWS VPC, 2 public subnets, 2 private subnets, NAT Gateway, EKS Cluster + Managed Node Group) |
+| **M8** | Kubernetes + Helm | 15 | `k8s/namespace.yaml`, `helm/bidbull/` (Dual replicas, ClusterIP services, Ingress, HPA, PVCs) |
+| **M9** | Observability: Prometheus + Grafana | 10 | Backend `/metrics` endpoint, `monitoring/prometheus-values.yaml`, `monitoring/grafana-values.yaml` & dashboard |
+| **M10** | Presentation & Documentation | 5 | Comprehensive `README.md`, `troubleshooting/` lab guides, and live demo verification steps |
+| **Total** | | **100** | **Full Compliance** |
+
+---
+
+## 1. Quickstart Runbook (Local Development)
+
+### Prerequisites
+- Docker Engine & Docker Compose
+- Python 3.12+ (for local backend development)
+- Node.js 20+ (for local frontend development)
+
+### Launch Full Stack via Docker Compose
+To build and start all four containers (PostgreSQL, Redis, FastAPI Backend, Next.js Frontend):
 
 ```bash
 docker compose up --build -d
 ```
 
-Verify service status:
+Check the status of running containers:
 ```bash
 docker compose ps
 ```
 
-Access endpoints:
-- **Frontend Dashboard:** `http://localhost:3000`
-- **Backend API & Swagger Docs:** `http://localhost:8000/docs`
-- **Health Check:** `http://localhost:8000/health`
-- **Prometheus Metrics:** `http://localhost:8000/metrics`
+Verify endpoints:
+- **Frontend Application:** `http://localhost:3000`
+- **Backend API & Interactive Swagger Docs:** `http://localhost:8000/docs`
+- **Liveness Probe:** `http://localhost:8000/health`
+- **Readiness Probe:** `http://localhost:8000/ready`
+- **Prometheus Scrape Endpoint:** `http://localhost:8000/metrics`
 
-Stop stack:
+Stop the stack:
 ```bash
 docker compose down
 ```
 
----
-
-### 2. Run Backend Locally
-
+To stop and remove persistent database volumes:
 ```bash
-cd backend
-python -m venv .venv
-.venv\Scripts\activate  # Windows (.venv/bin/activate on Linux/macOS)
-pip install -r requirements.txt
-alembic upgrade head
-python ../scripts/seed_database.py
-uvicorn app.main:app --reload --port 8000
+docker compose down -v
 ```
 
 ---
 
-### 3. Run Automated Tests
+## 2. API Endpoints Specification (Module M1)
+
+The backend provides full RESTful CRUD and WebSocket capabilities:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Cheap liveness probe returning `{ "status": "ok" }` |
+| `GET` | `/ready` | Readiness probe verifying PostgreSQL database connectivity |
+| `GET` | `/metrics` | Prometheus metrics scrape endpoint |
+| `POST` | `/api/auth/join` | Dynamic onboarding for room creation (Admin) and joining (Bidder) |
+| `GET` | `/api/items` | List auction lots filtered by `room_code` and `status` |
+| `POST` | `/api/items` | Create new auction lot (restricted to room seller) |
+| `GET` | `/api/items/{id}` | Retrieve individual auction item details |
+| `PUT` | `/api/items/{id}` | Update auction item details |
+| `DELETE` | `/api/items/{id}` | Delete unbidded auction item (restricted to seller) |
+| `POST` | `/api/bids` | Place quick bid or proxy bid ceiling |
+| `GET` | `/api/bids/item/{id}` | Fetch bid history ledger for an item |
+| `WS` | `/ws/auctions/{id}` | Real-time WebSocket bid stream and timer synchronization |
+
+---
+
+## 3. Automated Testing Suite (Module M2)
+
+The hermetic test suite runs against an isolated SQLite database and MockRedis instance, ensuring tests never mutate or depend on production databases:
 
 ```bash
 cd backend
 pytest -v
 ```
 
+### Test Coverage Highlights
+- `tests/test_health.py`: Verifies `/health`, `/ready`, and `/metrics` response structures.
+- `tests/test_auction_api.py`: Validates item CRUD operations, seller authentication, and payload validation.
+- `tests/test_proxy_bidding.py`: Validates initial bid opening, competing proxy bid step escalation, outbid notifications, and seller self-bidding prevention.
+- `tests/test_soft_close.py`: Validates anti-sniping dynamic time extensions when bids land within 120 seconds of auction closing.
+- `tests/test_concurrency.py`: Simulates concurrent racing bids to verify row-level locks and ledger integrity.
+
 ---
 
-### 4. Deploy with Helm on Kubernetes
+## 4. Container Architecture & Dockerfiles (Module M4)
 
+Both container images are hardened for production:
+- **Non-Root Execution:** Backend runs as unprivileged user `bidbull` (UID 999). Frontend runs as unprivileged user `nextjs` (UID 1001).
+- **Multi-Stage Builds:** The frontend uses a multi-stage Docker build separating the Node.js compilation environment from the lightweight standalone production runner.
+- **Entrypoint Migrations:** The backend container runs `alembic upgrade head` on startup before launching Uvicorn.
+
+### Manual Container Build & Run
 ```bash
+# Build backend image
+docker build -t bidbull-backend:local ./backend
+
+# Build frontend image
+docker build -t bidbull-frontend:local ./frontend
+```
+
+---
+
+## 5. CI/CD & DevSecOps Pipeline (Modules M5 & M6)
+
+The GitHub Actions workflow in `.github/workflows/ci-cd.yaml` triggers on every push to `main` and on pull requests:
+
+```text
+[ Push to main ]
+       |
+       v
++-------------------------------+
+|  Job 1: Automated Testing Gate |  --> Runs Pytest suite & builds Next.js frontend
++-------------------------------+
+       |
+       v
++-------------------------------+
+|  Job 2: Build & DevSecOps     |  --> Builds Docker images
+|         Security Audit        |  --> Scans with Aqua Security Trivy (fails on HIGH/CRITICAL)
+|                               |  --> Pushes images to GHCR tagged with Git commit SHA
++-------------------------------+
+       |
+       v
++-------------------------------+
+|  Job 3: Kubernetes / Helm     |  --> Lints Helm chart
+|         Verification          |  --> Executes Helm template dry-run with new SHA image tags
++-------------------------------+
+```
+
+### Traceability via Git Commit SHA
+Container images pushed to GitHub Container Registry (GHCR) use the Git commit SHA as the tag:
+```text
+ghcr.io/<owner>/<repo>-backend:<git-commit-sha>
+ghcr.io/<owner>/<repo>-frontend:<git-commit-sha>
+```
+This ensures complete traceability from the deployed container back to the exact Git commit that produced it.
+
+For detailed DevSecOps scan criteria and vulnerability handling, refer to [docs/DEVSECOPS.md](file:///c:/Users/Bishwayan%20Chatterjee/Desktop/random/firse_webdev/rush-hours/Devops_project-BidBull/docs/DEVSECOPS.md).
+
+---
+
+## 6. Terraform Infrastructure as Code (Module M7)
+
+The `terraform/` directory provides declarative AWS infrastructure in `ap-south-1`:
+- **VPC & Subnets:** Custom VPC with 2 public subnets (Internet Gateway) and 2 private subnets (NAT Gateway with Elastic IP).
+- **EKS Cluster:** Managed Kubernetes cluster (version 1.30) with IAM roles and policies.
+- **Managed Node Group:** Auto-scaling worker nodes (`t3.medium`, min: 1, desired: 2, max: 4).
+
+### Provisioning Runbook
+```bash
+cd terraform
+
+# 1. Initialize Terraform providers and backend
+terraform init
+
+# 2. Review execution plan
+terraform plan
+
+# 3. Apply infrastructure (creates VPC, NAT Gateway, EKS Cluster, and Node Group)
+terraform apply -auto-approve
+
+# 4. Configure local kubectl credentials from Terraform output
+aws eks --region ap-south-1 update-kubeconfig --name bidbull-eks
+
+# 5. Teardown infrastructure when finished to avoid runaway costs
+terraform destroy -auto-approve
+```
+
+---
+
+## 7. Kubernetes Deployment & Helm Chart (Module M8)
+
+The application is packaged as a reusable Helm chart located in `helm/bidbull/`:
+- **Namespace:** Isolated `bidbull` namespace defined in `k8s/namespace.yaml`.
+- **Deployments:** Backend and frontend run with 2 replicas each, configured with resource requests/limits, liveness (`/health`), and readiness (`/ready`) probes.
+- **Services:** ClusterIP services provide internal service discovery (`bidbull-backend:8000`, `bidbull-frontend:3000`).
+- **Ingress:** Nginx Ingress routes `/` to frontend, `/api` and `/ws` to backend with WebSocket upgrade support.
+- **HPA:** Horizontal Pod Autoscaler automatically scales backend pods from 2 to 8 replicas based on 70% CPU utilization.
+
+### Deployment Commands
+```bash
+# 1. Create namespace
 kubectl apply -f k8s/namespace.yaml
-helm upgrade --install bidbull ./helm/bidbull -n bidbull -f ./helm/bidbull/values-dev.yaml
+
+# 2. Deploy or upgrade stack using Helm
+helm upgrade --install bidbull ./helm/bidbull \
+  --namespace bidbull \
+  -f ./helm/bidbull/values-dev.yaml
+
+# 3. Verify pod and service status
 kubectl get pods -n bidbull
 kubectl get svc -n bidbull
+kubectl get ingress -n bidbull
+kubectl get hpa -n bidbull
 ```
+
+---
+
+## 8. Observability & Monitoring (Module M9)
+
+BidBull includes built-in Prometheus scraping and Grafana dashboard visualization:
+
+1. **Prometheus Scraping:**
+   - FastAPI exposes machine-readable metrics at `/metrics` via Prometheus FastApi Instrumentator.
+   - Prometheus is configured with scrape targets defined in `monitoring/prometheus-values.yaml`.
+
+2. **Grafana Dashboards:**
+   - Pre-configured dashboard in `monitoring/grafana-values.yaml` and `monitoring/grafana-dashboard.json`.
+   - Visualizes request throughput (`rate(http_requests_total)`), latency percentiles (p95 `http_request_duration_seconds_bucket`), HTTP status distributions, and memory usage.
+
+### Deploy Monitoring Stack
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Install Prometheus
+helm upgrade --install prometheus prometheus-community/prometheus \
+  --namespace monitoring --create-namespace \
+  -f ./monitoring/prometheus-values.yaml
+
+# Install Grafana
+helm upgrade --install grafana prometheus-community/grafana \
+  --namespace monitoring \
+  -f ./monitoring/grafana-values.yaml
+```
+
+Port-forward Grafana to inspect dashboards locally:
+```bash
+kubectl port-forward svc/grafana 3001:80 -n monitoring
+```
+Open `http://localhost:3001` (Username: `admin`, Password: `admin`).
+
+---
+
+## 9. Troubleshooting Exercises (Module M10)
+
+The `troubleshooting/` directory provides hands-on diagnostic manifests matching the DevOps capstone curriculum:
+
+### Scenario A: ImagePullBackOff
+```bash
+kubectl apply -f troubleshooting/broken-image.yaml
+kubectl get pods -n bidbull
+kubectl describe pod -l app=bidbull-broken-image -n bidbull
+# Diagnosis: Image tag does not exist. Fix deployment image tag to resolve.
+kubectl delete -f troubleshooting/broken-image.yaml
+```
+
+### Scenario B: Service Selector Mismatch (Endpoints: <none>)
+```bash
+kubectl apply -f troubleshooting/broken-service.yaml
+kubectl get svc bidbull-broken-service -n bidbull
+kubectl get endpoints bidbull-broken-service -n bidbull
+# Diagnosis: Selector label mismatch drops all endpoints. Correct selector to resolve.
+kubectl delete -f troubleshooting/broken-service.yaml
+```
+
+Refer to [troubleshooting/README.md](file:///c:/Users/Bishwayan%20Chatterjee/Desktop/random/firse_webdev/rush-hours/Devops_project-BidBull/troubleshooting/README.md) for full remediation guides.
+
+---
+
+## 10. Live Demonstration Script
+
+For evaluations or presentation walkthroughs:
+1. **Application Walkthrough:** Open `http://localhost:3000`, enter handle, create a room as Admin, list an item, open a second browser window as Bidder, and place a bid.
+2. **API Verification:** Demonstrate `curl http://localhost:8000/health` and `curl http://localhost:8000/metrics`.
+3. **CI/CD Quality Gate:** Make a code change, commit with semantic message, push to GitHub, and watch the GitHub Actions pipeline execute tests, Trivy audit, and image compilation.
+4. **Kubernetes Inspection:** Run `kubectl get pods -n bidbull` showing all pods in `Running` state.
+5. **Autoscaling Demonstration:** Run `python scripts/load_test.py --url http://localhost:8000 --concurrency 40 --duration 45` and observe CPU metrics spike in Prometheus and HPA pod scaling via `kubectl get hpa -n bidbull -w`.

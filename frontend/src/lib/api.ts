@@ -50,6 +50,27 @@ export async function fetchBidHistory(
   return response.json();
 }
 
+function formatErrorDetail(detail: unknown, fallback: string): string {
+  if (typeof detail === "string") {
+    return detail;
+  }
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "msg" in item) {
+          return String((item as { msg: unknown }).msg);
+        }
+        return JSON.stringify(item);
+      })
+      .join("; ");
+  }
+  if (detail && typeof detail === "object") {
+    return JSON.stringify(detail);
+  }
+  return fallback;
+}
+
 export async function placeBid(
   itemId: string,
   maxBidCents: number,
@@ -66,7 +87,7 @@ export async function placeBid(
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.detail || "Bid submission failed");
+    throw new Error(formatErrorDetail(data.detail, "Bid submission failed"));
   }
   return data;
 }
@@ -81,11 +102,11 @@ export async function joinUser(username: string): Promise<{
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: username.trim() }),
   });
+  const data = await response.json();
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || "Unable to join with specified handle");
+    throw new Error(formatErrorDetail(data.detail, "Unable to join with specified handle"));
   }
-  return response.json();
+  return data;
 }
 
 export async function createItemListing(
@@ -111,7 +132,7 @@ export async function createItemListing(
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.detail || "Listing creation failed");
+    throw new Error(formatErrorDetail(data.detail, "Listing creation failed"));
   }
   return data;
 }

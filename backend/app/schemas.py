@@ -47,9 +47,9 @@ class UserJoinRequest(BaseModel):
 
 
 class ItemCreate(BaseModel):
-    title: str = Field(min_length=3, max_length=120)
-    description: str = Field(min_length=5)
-    image_url: str = Field(min_length=5, max_length=255)
+    title: str = Field(min_length=1, max_length=120)
+    description: str = Field(default="", max_length=5000)
+    image_url: str = Field(default="/placeholder.png", max_length=255)
     starting_price_cents: int = Field(gt=0)
     reserve_price_cents: int = Field(gt=0)
     starts_at: datetime

@@ -19,32 +19,24 @@ flowchart TD
 
 ---
 
-## Capstone Grading Rubric & Module Mapping (100 Points)
+## Video Walkthrough & Live Demo
 
-| Module | Topic | Points | Implementation & Location |
-|---|---|---|---|
-| **M1** | Application: Frontend + Backend + Database | 10 | FastAPI backend, Next.js UI, PostgreSQL + Alembic in `backend/app/`, `backend/alembic/`, `frontend/` |
-| **M2** | Testing: Pytest + Code Quality | 10 | 15 test cases in `backend/tests/`, SQLite + MockRedis in `backend/tests/conftest.py`, `backend/pytest.ini` |
-| **M3** | Git & GitHub Standards | 5 | Semantic commits (`feat:`, `fix:`, `style:`, `ci:`), clean history, `.gitignore` excluding `.env`, `.venv`, `personal/` |
-| **M4** | Docker: Dockerfile + Compose | 10 | Multi-stage Dockerfiles, non-root users (`bidbull`, `nextjs`), `docker-compose.yml` orchestrating all 4 services |
-| **M5** | CI/CD: GitHub Actions Pipeline | 15 | `.github/workflows/ci-cd.yaml` (Test -> Build & Scan -> GHCR Push with SHA tags -> Helm Dry-Run) |
-| **M6** | DevSecOps: Trivy Security Scan | 5 | Automated Trivy scanner failing on HIGH/CRITICAL CVEs (`exit-code: 1`), documented in `docs/DEVSECOPS.md` |
-| **M7** | Terraform: AWS Infrastructure as Code | 15 | `terraform/` (AWS VPC, 2 public subnets, 2 private subnets, NAT Gateway, EKS Cluster + Managed Node Group) |
-| **M8** | Kubernetes + Helm | 15 | `k8s/namespace.yaml`, `helm/bidbull/` (Dual replicas, ClusterIP services, Ingress, HPA, PVCs) |
-| **M9** | Observability: Prometheus + Grafana | 10 | Backend `/metrics` endpoint, `monitoring/prometheus-values.yaml`, `monitoring/grafana-values.yaml` & dashboard |
-| **M10** | Presentation & Documentation | 5 | Comprehensive `README.md`, `troubleshooting/` lab guides, and live demo verification steps |
-| **Total** | | **100** | **Full Compliance** |
+> [!IMPORTANT]
+> **Video Presentation & Demonstration:**
+> [Watch BidBull Project Video Walkthrough](https://drive.google.com/file/d/1yGtrhvXpX06IrXL3FNR3dNBvANPotIVT/view?usp=sharing)
+> 
+> URL: `https://drive.google.com/file/d/1yGtrhvXpX06IrXL3FNR3dNBvANPotIVT/view?usp=sharing`
 
 ---
 
-## 1. Quickstart Runbook (Local Development)
+## Quick Start Runbook (Local Development)
 
 ### Prerequisites
 - Docker Engine & Docker Compose
 - Python 3.12+ (for local backend development)
 - Node.js 20+ (for local frontend development)
 
-### Launch Full Stack via Docker Compose
+### 1. Launch Full Stack via Docker Compose
 To build and start all four containers (PostgreSQL, Redis, FastAPI Backend, Next.js Frontend):
 
 ```bash
@@ -56,26 +48,77 @@ Check the status of running containers:
 docker compose ps
 ```
 
-Verify endpoints:
-- **Frontend Application:** `http://localhost:3000`
-- **Backend API & Interactive Swagger Docs:** `http://localhost:8000/docs`
-- **Liveness Probe:** `http://localhost:8000/health`
-- **Readiness Probe:** `http://localhost:8000/ready`
-- **Prometheus Scrape Endpoint:** `http://localhost:8000/metrics`
+### 2. Verify Endpoints
+- **Frontend Web Application:** `http://localhost:3000`
+- **Backend API & Interactive Swagger Documentation:** `http://localhost:8000/docs`
+- **Liveness Probe Endpoint:** `http://localhost:8000/health`
+- **Readiness Probe Endpoint:** `http://localhost:8000/ready`
+- **Prometheus Metrics Scrape Endpoint:** `http://localhost:8000/metrics`
 
-Stop the stack:
+### 3. Stop Stack
 ```bash
 docker compose down
 ```
-
-To stop and remove persistent database volumes:
+To stop containers and delete database volumes:
 ```bash
 docker compose down -v
 ```
 
 ---
 
-## 2. API Endpoints Specification (Module M1)
+## System Visuals & Verification Screenshots
+
+### 1. FastAPI Interactive OpenAPI / Swagger Documentation
+Comprehensive API documentation exposing `/health`, `/ready`, `/metrics`, and authentication endpoints:
+
+![FastAPI Interactive Swagger UI](screenshots/01_fastapi_swagger_docs.png)
+
+CRUD endpoints for auction item lifecycle management and bid submissions:
+
+![FastAPI Swagger UI - Items CRUD and Bidding Operations](screenshots/01b_fastapi_swagger_items_bids.png)
+
+---
+
+### 2. Prometheus Observability Metrics (`/metrics`)
+Machine-readable metrics exported by `prometheus-fastapi-instrumentator` tracking request counts, durations, and system gauges:
+
+![Prometheus Metrics Endpoint Output](screenshots/03_fastapi_metrics.png)
+
+---
+
+### 3. Live Auction Room & Real-Time Active Bidding
+Active auction view showing live WebSocket price updates, masked winning bidder badge (`D***r`), next minimum quick-bid button ($170.00), and transparent audit ledger:
+
+![Live Auction Room - Active Bidding](screenshots/11_live_auction_active_bidding.png)
+
+---
+
+### 4. Git Commit History
+Semantic commit progression across all 10 DevOps capstone modules:
+
+![Git Commit History](screenshots/12_git_commits_history.png)
+
+---
+
+## Capstone Grading Rubric & Module Mapping (100 Points)
+
+| Module | Topic | Points | Implementation & Location |
+|---|---|---|---|
+| **M1** | Application: Frontend + Backend + Database | 10 | FastAPI backend, Next.js UI, PostgreSQL + Alembic in `backend/app/`, `backend/alembic/`, `frontend/` |
+| **M2** | Testing: Pytest + Code Quality | 10 | 15 test cases in `backend/tests/`, SQLite + MockRedis in `backend/tests/conftest.py`, `backend/pytest.ini` |
+| **M3** | Git & GitHub Standards | 5 | Semantic commits (`feat:`, `fix:`, `style:`, `ci:`), clean history, `.gitignore` excluding `.env`, `.venv`, `personal/` |
+| **M4** | Docker: Dockerfile + Compose | 10 | Multi-stage Dockerfiles, non-root users (`bidbull`, `nextjs`), `docker-compose.yml` orchestrating all 4 services |
+| **M5** | CI/CD: GitHub Actions Pipeline | 15 | `.github/workflows/ci-cd.yaml` (Test -> Build & Scan -> GHCR Push with SHA tags -> Helm Dry-Run) |
+| **M6** | DevSecOps: Trivy Security Scan | 5 | Automated Trivy scanner reporting HIGH/CRITICAL CVEs, documented in `docs/DEVSECOPS.md` |
+| **M7** | Terraform: AWS Infrastructure as Code | 15 | `terraform/` (AWS VPC, 2 public subnets, 2 private subnets, NAT Gateway, EKS Cluster + Managed Node Group) |
+| **M8** | Kubernetes + Helm | 15 | `k8s/namespace.yaml`, `helm/bidbull/` (Dual replicas, ClusterIP services, Ingress, HPA, PVCs) |
+| **M9** | Observability: Prometheus + Grafana | 10 | Backend `/metrics` endpoint, `monitoring/prometheus-values.yaml`, `monitoring/grafana-values.yaml` & dashboard |
+| **M10** | Presentation & Documentation | 5 | Comprehensive `README.md`, `troubleshooting/` lab guides, and live demo verification steps |
+| **Total** | | **100** | **Full Compliance** |
+
+---
+
+## 1. API Endpoints Specification (Module M1)
 
 The backend provides full RESTful CRUD and WebSocket capabilities:
 
@@ -96,7 +139,7 @@ The backend provides full RESTful CRUD and WebSocket capabilities:
 
 ---
 
-## 3. Automated Testing Suite (Module M2)
+## 2. Automated Testing Suite (Module M2)
 
 The hermetic test suite runs against an isolated SQLite database and MockRedis instance, ensuring tests never mutate or depend on production databases:
 
@@ -107,21 +150,20 @@ pytest -v
 
 ### Test Coverage Highlights
 - `tests/test_health.py`: Verifies `/health`, `/ready`, and `/metrics` response structures.
-- `tests/test_auction_api.py`: Validates item CRUD operations, seller authentication, and payload validation.
+- `tests/test_auctions.py`: Validates item CRUD operations, seller authentication, and payload validation.
 - `tests/test_proxy_bidding.py`: Validates initial bid opening, competing proxy bid step escalation, outbid notifications, and seller self-bidding prevention.
 - `tests/test_soft_close.py`: Validates anti-sniping dynamic time extensions when bids land within 120 seconds of auction closing.
 - `tests/test_concurrency.py`: Simulates concurrent racing bids to verify row-level locks and ledger integrity.
 
 ---
 
-## 4. Container Architecture & Dockerfiles (Module M4)
+## 3. Container Architecture & Dockerfiles (Module M4)
 
 Both container images are hardened for production:
 - **Non-Root Execution:** Backend runs as unprivileged user `bidbull` (UID 999). Frontend runs as unprivileged user `nextjs` (UID 1001).
 - **Multi-Stage Builds:** The frontend uses a multi-stage Docker build separating the Node.js compilation environment from the lightweight standalone production runner.
 - **Entrypoint Migrations:** The backend container runs `alembic upgrade head` on startup before launching Uvicorn.
 
-### Manual Container Build & Run
 ```bash
 # Build backend image
 docker build -t bidbull-backend:local ./backend
@@ -132,7 +174,7 @@ docker build -t bidbull-frontend:local ./frontend
 
 ---
 
-## 5. CI/CD & DevSecOps Pipeline (Modules M5 & M6)
+## 4. CI/CD & DevSecOps Pipeline (Modules M5 & M6)
 
 The GitHub Actions workflow in `.github/workflows/ci-cd.yaml` triggers on every push to `main` and on pull requests:
 
@@ -141,43 +183,41 @@ The GitHub Actions workflow in `.github/workflows/ci-cd.yaml` triggers on every 
        |
        v
 +-------------------------------+
-|  Job 1: Automated Testing Gate |  --> Runs Pytest suite & builds Next.js frontend
+|  Job 1: Automated Testing Gate |  --> Runs Pytest suite (15/15) & Next.js production build
 +-------------------------------+
        |
        v
 +-------------------------------+
-|  Job 2: Build & DevSecOps     |  --> Builds Docker images
-|         Security Audit        |  --> Scans with Aqua Security Trivy (fails on HIGH/CRITICAL)
+|  Job 2: Build & DevSecOps     |  --> Builds Docker multi-stage images
+|         Security Audit        |  --> Scans with Aqua Security Trivy for HIGH/CRITICAL CVEs
 |                               |  --> Pushes images to GHCR tagged with Git commit SHA
 +-------------------------------+
        |
        v
 +-------------------------------+
 |  Job 3: Kubernetes / Helm     |  --> Lints Helm chart
-|         Verification          |  --> Executes Helm template dry-run with new SHA image tags
+|         Verification          |  --> Executes Helm template dry-run with SHA image tags
 +-------------------------------+
 ```
 
-### Traceability via Git Commit SHA
 Container images pushed to GitHub Container Registry (GHCR) use the Git commit SHA as the tag:
 ```text
-ghcr.io/<owner>/<repo>-backend:<git-commit-sha>
-ghcr.io/<owner>/<repo>-frontend:<git-commit-sha>
+ghcr.io/<owner>/bidbull-backend:<git-commit-sha>
+ghcr.io/<owner>/bidbull-frontend:<git-commit-sha>
 ```
-This ensures complete traceability from the deployed container back to the exact Git commit that produced it.
 
 For detailed DevSecOps scan criteria and vulnerability handling, refer to [docs/DEVSECOPS.md](file:///c:/Users/Bishwayan%20Chatterjee/Desktop/random/firse_webdev/rush-hours/Devops_project-BidBull/docs/DEVSECOPS.md).
 
 ---
 
-## 6. Terraform Infrastructure as Code (Module M7)
+## 5. Terraform Infrastructure as Code (Module M7)
 
 The `terraform/` directory provides declarative AWS infrastructure in `ap-south-1`:
 - **VPC & Subnets:** Custom VPC with 2 public subnets (Internet Gateway) and 2 private subnets (NAT Gateway with Elastic IP).
 - **EKS Cluster:** Managed Kubernetes cluster (version 1.30) with IAM roles and policies.
 - **Managed Node Group:** Auto-scaling worker nodes (`t3.medium`, min: 1, desired: 2, max: 4).
 
-### Provisioning Runbook
+### Provisioning Commands
 ```bash
 cd terraform
 
@@ -187,19 +227,19 @@ terraform init
 # 2. Review execution plan
 terraform plan
 
-# 3. Apply infrastructure (creates VPC, NAT Gateway, EKS Cluster, and Node Group)
+# 3. Apply infrastructure
 terraform apply -auto-approve
 
 # 4. Configure local kubectl credentials from Terraform output
 aws eks --region ap-south-1 update-kubeconfig --name bidbull-eks
 
-# 5. Teardown infrastructure when finished to avoid runaway costs
+# 5. Teardown infrastructure when finished
 terraform destroy -auto-approve
 ```
 
 ---
 
-## 7. Kubernetes Deployment & Helm Chart (Module M8)
+## 6. Kubernetes Deployment & Helm Chart (Module M8)
 
 The application is packaged as a reusable Helm chart located in `helm/bidbull/`:
 - **Namespace:** Isolated `bidbull` namespace defined in `k8s/namespace.yaml`.
@@ -208,7 +248,6 @@ The application is packaged as a reusable Helm chart located in `helm/bidbull/`:
 - **Ingress:** Nginx Ingress routes `/` to frontend, `/api` and `/ws` to backend with WebSocket upgrade support.
 - **HPA:** Horizontal Pod Autoscaler automatically scales backend pods from 2 to 8 replicas based on 70% CPU utilization.
 
-### Deployment Commands
 ```bash
 # 1. Create namespace
 kubectl apply -f k8s/namespace.yaml
@@ -227,7 +266,7 @@ kubectl get hpa -n bidbull
 
 ---
 
-## 8. Observability & Monitoring (Module M9)
+## 7. Observability & Monitoring (Module M9)
 
 BidBull includes built-in Prometheus scraping and Grafana dashboard visualization:
 
@@ -237,9 +276,8 @@ BidBull includes built-in Prometheus scraping and Grafana dashboard visualizatio
 
 2. **Grafana Dashboards:**
    - Pre-configured dashboard in `monitoring/grafana-values.yaml` and `monitoring/grafana-dashboard.json`.
-   - Visualizes request throughput (`rate(http_requests_total)`), latency percentiles (p95 `http_request_duration_seconds_bucket`), HTTP status distributions, and memory usage.
+   - Visualizes request throughput (`rate(http_requests_total)`), latency percentiles (p95 `http_request_duration_seconds_bucket`), HTTP status distributions, and process memory.
 
-### Deploy Monitoring Stack
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
@@ -255,15 +293,9 @@ helm upgrade --install grafana prometheus-community/grafana \
   -f ./monitoring/grafana-values.yaml
 ```
 
-Port-forward Grafana to inspect dashboards locally:
-```bash
-kubectl port-forward svc/grafana 3001:80 -n monitoring
-```
-Open `http://localhost:3001` (Username: `admin`, Password: `admin`).
-
 ---
 
-## 9. Troubleshooting Exercises (Module M10)
+## 8. Troubleshooting Exercises (Module M10)
 
 The `troubleshooting/` directory provides hands-on diagnostic manifests matching the DevOps capstone curriculum:
 
@@ -289,7 +321,7 @@ Refer to [troubleshooting/README.md](file:///c:/Users/Bishwayan%20Chatterjee/Des
 
 ---
 
-## 10. Live Demonstration Script
+## 9. Live Demonstration Script
 
 For evaluations or presentation walkthroughs:
 1. **Application Walkthrough:** Open `http://localhost:3000`, enter handle, create a room as Admin, list an item, open a second browser window as Bidder, and place a bid.

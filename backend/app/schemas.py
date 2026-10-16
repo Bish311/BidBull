@@ -42,6 +42,10 @@ class TokenResponse(BaseModel):
     username: str
 
 
+class UserJoinRequest(BaseModel):
+    username: str = Field(min_length=2, max_length=50)
+
+
 class ItemCreate(BaseModel):
     title: str = Field(min_length=3, max_length=120)
     description: str = Field(min_length=5)
@@ -50,6 +54,13 @@ class ItemCreate(BaseModel):
     reserve_price_cents: int = Field(gt=0)
     starts_at: datetime
     expires_at: datetime
+    room_code: str = Field(default="DEFAULT", max_length=50)
+
+
+class ItemUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    reserve_price_cents: Optional[int] = None
 
 
 class ItemResponse(BaseModel):
@@ -66,6 +77,7 @@ class ItemResponse(BaseModel):
     starts_at: datetime
     expires_at: datetime
     bid_count: int
+    room_code: str = "DEFAULT"
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -73,6 +85,7 @@ class ItemResponse(BaseModel):
 
 class ItemDetailResponse(ItemResponse):
     next_minimum_cents: int
+    quick_bid_options: list[int] = []
     is_seller: bool = False
     is_high_bidder: bool = False
 

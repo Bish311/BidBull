@@ -86,6 +86,7 @@ class Item(Base):
         GUID(), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     status: Mapped[str] = mapped_column(String(20), default="DRAFT", nullable=False)
+    room_code: Mapped[str] = mapped_column(String(50), default="DEFAULT", nullable=False, index=True)
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

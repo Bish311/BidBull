@@ -15,7 +15,9 @@ class Base(DeclarativeBase):
 
 def build_async_database_url(raw_url: str) -> str:
     if raw_url.startswith("postgresql://"):
-        return raw_url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return raw_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if raw_url.startswith("postgresql+psycopg://"):
+        return raw_url.replace("postgresql+psycopg://", "postgresql+asyncpg://", 1)
     if raw_url.startswith("sqlite://") and not raw_url.startswith("sqlite+aiosqlite://"):
         return raw_url.replace("sqlite://", "sqlite+aiosqlite://", 1)
     return raw_url

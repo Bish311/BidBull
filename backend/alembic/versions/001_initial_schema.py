@@ -40,6 +40,7 @@ def upgrade() -> None:
         sa.Column("current_price_cents", sa.BigInteger(), nullable=False),
         sa.Column("high_bidder_id", sa.CHAR(36), sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True),
         sa.Column("status", sa.String(20), server_default="DRAFT", nullable=False),
+        sa.Column("room_code", sa.String(50), server_default="DEFAULT", nullable=False),
         sa.Column("starts_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -49,6 +50,7 @@ def upgrade() -> None:
         sa.CheckConstraint("expires_at > starts_at", name="chk_item_expiration"),
     )
     op.create_index("idx_items_status_expires", "items", ["status", "expires_at"])
+    op.create_index("idx_items_room_code", "items", ["room_code"])
 
     op.create_table(
         "bids",

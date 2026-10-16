@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "BidBull"
     ENVIRONMENT: str = "development"
-    DATABASE_URL: str = "postgresql+psycopg://bidbull:bidbull@localhost:5432/bidbull"
+    DATABASE_URL: str = "postgresql+asyncpg://bidbull:bidbull@localhost:5432/bidbull"
     REDIS_URL: str = "redis://localhost:6379/0"
     JWT_SECRET: str = "secure_bidbull_secret_key_production_ready_value"
     JWT_ALGORITHM: str = "HS256"

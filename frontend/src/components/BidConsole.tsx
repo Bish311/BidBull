@@ -6,24 +6,33 @@ import { formatCentsToDollars, parseDollarsToCents } from "../lib/format-currenc
 interface BidConsoleProps {
   currentPriceCents: number;
   nextMinimumCents: number;
+  quickBidOptions?: number[];
   isSubmitting: boolean;
   onSubmitBid: (amountCents: number) => void;
   disabled?: boolean;
+  isAdmin?: boolean;
+  isHighBidder?: boolean;
 }
 
 export default function BidConsole({
   nextMinimumCents,
+  quickBidOptions: backendQuickOptions,
   isSubmitting,
   onSubmitBid,
   disabled = false,
+  isAdmin = false,
+  isHighBidder = false,
 }: BidConsoleProps) {
   const [customBidDollars, setCustomBidDollars] = useState<string>("");
 
-  const quickBidOptions = [
-    nextMinimumCents,
-    nextMinimumCents + 500,
-    nextMinimumCents + 1000,
-  ];
+  const defaultStep = nextMinimumCents < 10000 ? 500 : 1000;
+  const quickBidOptions = backendQuickOptions && backendQuickOptions.length === 3
+    ? backendQuickOptions
+    : [
+        nextMinimumCents,
+        nextMinimumCents + defaultStep,
+        nextMinimumCents + 2 * defaultStep,
+      ];
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +43,28 @@ export default function BidConsole({
     }
   };
 
+  if (isAdmin) {
+    return (
+      <div className="rounded border border-amber-900/60 bg-amber-950/20 p-5">
+        <div className="flex items-center space-x-2 text-amber-400">
+          <span className="text-base font-bold font-mono">ROOM ADMIN NOTICE</span>
+        </div>
+        <p className="mt-2 text-xs text-amber-300/80">
+          You are the creator of this auction room. As administrator and seller, you can add and manage listings, but self-bidding is strictly prohibited.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded border border-[#252836] bg-[#14161f] p-5">
-      <div className="mb-4">
+    <div className="rounded border border-[#252836] bg-[#14161f] p-5 space-y-4">
+      {isHighBidder && (
+        <div className="rounded border border-emerald-800 bg-emerald-950/50 p-2.5 text-xs font-mono font-bold text-emerald-300">
+          HIGH BIDDER — You currently hold the winning bid on this listing.
+        </div>
+      )}
+
+      <div>
         <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">
           QUICK BID INCREMENTS
         </div>
@@ -70,7 +98,11 @@ export default function BidConsole({
           />
           <button
             type="submit"
-            disabled={disabled || isSubmitting || parseDollarsToCents(customBidDollars) < nextMinimumCents}
+            disabled={
+              disabled ||
+              isSubmitting ||
+              parseDollarsToCents(customBidDollars) < nextMinimumCents
+            }
             className="rounded bg-[#2563eb] px-5 py-2 text-xs font-bold tracking-wider text-white transition hover:bg-[#1d4ed8] disabled:opacity-40"
           >
             {isSubmitting ? "PROCESSING" : "PLACE PROXY"}

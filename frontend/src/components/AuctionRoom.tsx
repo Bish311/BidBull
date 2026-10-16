@@ -7,6 +7,7 @@ import {
   BidHistoryEntry,
   ItemDetail,
   OutbidAlertEvent,
+  SessionState,
   SoftCloseExtendedEvent,
 } from "../lib/types";
 import { fetchBidHistory, fetchItemDetail, placeBid } from "../lib/api";
@@ -20,9 +21,10 @@ import OutbidAlert from "./OutbidAlert";
 interface AuctionRoomProps {
   itemId: string;
   activePersona: ActivePersona;
+  session?: SessionState | null;
 }
 
-export default function AuctionRoom({ itemId, activePersona }: AuctionRoomProps) {
+export default function AuctionRoom({ itemId, activePersona, session }: AuctionRoomProps) {
   const [item, setItem] = useState<ItemDetail | null>(null);
   const [bids, setBids] = useState<BidHistoryEntry[]>([]);
   const [outbidAlert, setOutbidAlert] = useState<OutbidAlertEvent | null>(null);
@@ -188,13 +190,34 @@ export default function AuctionRoom({ itemId, activePersona }: AuctionRoomProps)
             </div>
           </div>
 
-          <BidConsole
-            currentPriceCents={item.current_price_cents}
-            nextMinimumCents={item.next_minimum_cents}
-            isSubmitting={isSubmitting}
-            onSubmitBid={handleSubmitBid}
-            disabled={isClosed}
-          />
+          {(() => {
+            const currentUserId = session?.userId || activePersona?.userId;
+            const currentUsername = session?.username || activePersona?.username;
+            const isSellerOrAdmin =
+              session?.role === "ADMIN" ||
+              (currentUserId && item.seller_id === currentUserId);
+            const isWinning =
+              Boolean(currentUserId && item.high_bidder_id === currentUserId) ||
+              Boolean(
+                currentUsername &&
+                item.high_bidder_masked &&
+                item.high_bidder_masked.startsWith(currentUsername[0]) &&
+                item.high_bidder_masked.endsWith(currentUsername[currentUsername.length - 1])
+              );
+
+            return (
+              <BidConsole
+                currentPriceCents={item.current_price_cents}
+                nextMinimumCents={item.next_minimum_cents}
+                quickBidOptions={item.quick_bid_options}
+                isSubmitting={isSubmitting}
+                onSubmitBid={handleSubmitBid}
+                disabled={isClosed}
+                isAdmin={Boolean(isSellerOrAdmin)}
+                isHighBidder={Boolean(isWinning)}
+              />
+            );
+          })()}
         </div>
 
         <div>

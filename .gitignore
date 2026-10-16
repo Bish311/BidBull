@@ -1,4 +1,5 @@
 personal/
+screenshots/
 
 *.db
 __pycache__/

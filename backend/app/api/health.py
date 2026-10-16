@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
-from app.core.redis import ping_redis
+from app.core import redis as redis_core
 from app.schemas import HealthResponse, ReadinessResponse
 
 router = APIRouter(tags=["Health"])
@@ -25,7 +25,7 @@ async def check_readiness(
     except Exception:
         db_status = "unhealthy"
 
-    redis_alive = await ping_redis()
+    redis_alive = await redis_core.ping_redis()
     redis_status = "healthy" if redis_alive else "unhealthy"
 
     is_ready = db_status == "healthy" and redis_status == "healthy"

@@ -24,6 +24,7 @@ export interface Item {
 }
 
 export interface ItemDetail extends Item {
+  high_bidder_id?: string | null;
   next_minimum_cents: number;
   quick_bid_options?: number[];
   is_seller: boolean;

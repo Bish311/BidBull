@@ -1,3 +1,12 @@
+import os
+import sys
+from pathlib import Path
+
+# Ensure backend root is on sys.path regardless of how pytest is invoked
+backend_root = Path(__file__).resolve().parent.parent
+if str(backend_root) not in sys.path:
+    sys.path.insert(0, str(backend_root))
+
 import asyncio
 from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta, timezone
@@ -12,13 +21,11 @@ from app.core.security import hash_password
 from app.main import app
 from app.models import Item, User
 
-import os
-
 TEST_DATABASE_URL = "sqlite+aiosqlite:///test_bidbull.db"
 
 test_engine = create_async_engine(
     TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args={"check_same_thread": False, "timeout": 30},
     echo=False,
 )
 
@@ -105,11 +112,15 @@ async def setup_test_database():
         await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_redis(monkeypatch) -> MockRedis:
+    async def mock_ping() -> bool:
+        return True
+
     monkeypatch.setattr("app.api.bids.get_redis", override_get_redis)
     monkeypatch.setattr("app.core.redis.get_redis", override_get_redis)
-    monkeypatch.setattr("app.core.redis.ping_redis", lambda: asyncio.sleep(0, result=True))
+    monkeypatch.setattr("app.core.redis.ping_redis", mock_ping)
+    monkeypatch.setattr("app.api.websocket.get_redis", override_get_redis)
     return mock_redis_instance
 
 

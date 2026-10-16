@@ -1,0 +1,121 @@
+# Grafana Helm Chart Values for BidBull Monitoring Stack
+adminPassword: "admin"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server.monitoring.svc.cluster.local:80
+        access: proxy
+        isDefault: true
+        editable: false
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    bidbull-dashboard:
+      json: |
+        {
+          "annotations": { "list": [] },
+          "editable": true,
+          "fiscalYearStartMonth": 0,
+          "graphTooltip": 0,
+          "id": null,
+          "links": [],
+          "liveNow": true,
+          "panels": [
+            {
+              "collapsed": false,
+              "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+              "id": 1,
+              "title": "HTTP Request Throughput (req/s)",
+              "type": "timeseries",
+              "targets": [
+                {
+                  "datasource": "Prometheus",
+                  "expr": "sum(rate(http_requests_total[1m])) by (handler)",
+                  "legendFormat": "{{handler}}"
+                }
+              ]
+            },
+            {
+              "collapsed": false,
+              "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+              "id": 2,
+              "title": "HTTP Request Duration (p95)",
+              "type": "timeseries",
+              "targets": [
+                {
+                  "datasource": "Prometheus",
+                  "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le, handler))",
+                  "legendFormat": "p95 {{handler}}"
+                }
+              ]
+            },
+            {
+              "collapsed": false,
+              "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+              "id": 3,
+              "title": "HTTP Status Code Distribution",
+              "type": "timeseries",
+              "targets": [
+                {
+                  "datasource": "Prometheus",
+                  "expr": "sum(rate(http_requests_total[1m])) by (status)",
+                  "legendFormat": "Status {{status}}"
+                }
+              ]
+            },
+            {
+              "collapsed": false,
+              "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+              "id": 4,
+              "title": "Active Python Processes & Memory",
+              "type": "timeseries",
+              "targets": [
+                {
+                  "datasource": "Prometheus",
+                  "expr": "process_resident_memory_bytes{job='bidbull-backend'}",
+                  "legendFormat": "Resident Memory"
+                }
+              ]
+            }
+          ],
+          "refresh": "5s",
+          "schemaVersion": 38,
+          "style": "dark",
+          "tags": ["bidbull", "devops", "fastapi"],
+          "time": { "from": "now-15m", "to": "now" },
+          "title": "BidBull Application Overview"
+        }
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

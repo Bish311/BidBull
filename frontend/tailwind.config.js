@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,13 +10,18 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          background: "#0f1115",
-          panel: "#16181f",
-          border: "#252836",
-          accent: "#2563eb",
-          accentHover: "#1d4ed8",
-          danger: "#ef4444",
-          success: "#22c55e",
+          bg: "var(--bg-page)",
+          card: "var(--bg-card)",
+          subpanel: "var(--bg-subpanel)",
+          border: "var(--border-color)",
+          text: "var(--text-main)",
+          muted: "var(--text-muted)",
+          accent: "var(--accent-primary)",
+          accentHover: "var(--accent-primary-hover)",
+          danger: "var(--accent-danger)",
+          dangerBg: "var(--accent-danger-bg)",
+          badgeBg: "var(--accent-badge-bg)",
+          badgeText: "var(--accent-badge-text)",
         },
       },
     },
